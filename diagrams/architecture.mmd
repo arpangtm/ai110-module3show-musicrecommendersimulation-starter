@@ -1,0 +1,60 @@
+flowchart TD
+    U([User request in plain English]) --> G1
+
+    subgraph Guardrails_In [Input guardrail - src/guardrails.py]
+        G1{check_request:<br/>empty? junk? too long?<br/>injection phrases?}
+    end
+    G1 -- rejected --> R1([Refusal message + reason])
+    G1 -- cleaned text --> NEG[split_negations<br/>'no metal' -> exclusion list<br/>src/planner.py]
+
+    NEG --> RET
+    subgraph RAG [Retrieval - src/retriever.py]
+        RET[Retriever.search]
+        K1[(knowledge/situations.md<br/>activities and feelings)]
+        K2[(knowledge/genres.md<br/>genres + slang aliases)]
+        K3[(data/songs.csv<br/>song titles)]
+        K1 --> RET
+        K2 --> RET
+        K3 --> RET
+    end
+
+    RET -- top docs + hints --> PLAN
+    subgraph Planning [Planner]
+        PLAN{Gemini key set?}
+        LLM[LLMPlanner<br/>src/llm.py<br/>prompt includes retrieved notes]
+        RULES[RulePlanner<br/>src/planner.py<br/>hints + explicit words]
+        PLAN -- yes --> LLM
+        PLAN -- no --> RULES
+        LLM -- error or bad JSON --> RULES
+    end
+
+    LLM --> G2
+    RULES --> G2
+    subgraph Guardrails_Profile [Profile guardrail - src/guardrails.py]
+        G2{validate_profile:<br/>genre/mood in catalog?<br/>numbers in range? k 1-10?}
+    end
+    G2 -- no usable preferences --> R2([Refusal: not going to guess])
+    G2 -- clean profile --> REC
+
+    subgraph Agent_Loop [Agent loop - src/agent.py]
+        REC[recommend_songs<br/>src/recommender.py<br/>weighted score + artist penalty]
+        CRIT{critique:<br/>confidence below 0.6?<br/>mood missing in top 3?<br/>energy far off?}
+        REV[revise: switch strategy<br/>mood_first / energy_first<br/>max 2 rounds]
+        DEC[decide: fewest issues,<br/>then highest confidence]
+        REC --> CRIT
+        CRIT -- issues --> REV --> REC
+        CRIT -- ok or out of rounds --> DEC
+    end
+
+    DEC --> OUT[Output guardrail:<br/>drop picks under 20% fit,<br/>cap confidence on thin requests]
+    OUT --> ANS([Ranked songs + reasons + confidence<br/>+ grounding notes + warnings])
+    DEC -. every step .-> LOG[(logs/agent_trace.jsonl<br/>logs/vibefinder.log)]
+
+    subgraph Human_and_Tests [Checking the AI]
+        T1[pytest suite<br/>tests/]
+        T2[eval/run_eval.py<br/>16 cases + RAG on/off]
+        H[Me reading traces<br/>and eval report]
+    end
+    ANS -.-> T2
+    LOG -.-> H
+    T2 -.-> H

@@ -1,0 +1,114 @@
+$ python -m src.vibefinder --trace "slow happy songs"
+
+Request: "slow happy songs"
+Planner: rules | Strategy: energy_first | Confidence: 0.66 (medium)
+Profile used: {'mood': 'happy', 'energy': 0.22}
++---+-----------------------------------+-----------------+-------+-----+--------------------------------------------------+
+| # | Song                              | Genre/Mood      | Score | Fit | Why                                              |
++---+-----------------------------------+-----------------+-------+-----+--------------------------------------------------+
+| 1 | Moonlit Sonata Study - Clara Veil | classical/calm  | 3.43  | 69% | energy 0.20 vs target 0.22 (+3.43)               |
++---+-----------------------------------+-----------------+-------+-----+--------------------------------------------------+
+| 2 | Spacewalk Thoughts - Orbit Bloom  | ambient/chill   | 3.29  | 66% | energy 0.28 vs target 0.22 (+3.29)               |
++---+-----------------------------------+-----------------+-------+-----+--------------------------------------------------+
+| 3 | Pine Smoke - Harbor & Elm         | folk/melancholy | 3.22  | 64% | energy 0.30 vs target 0.22 (+3.22)               |
++---+-----------------------------------+-----------------+-------+-----+--------------------------------------------------+
+| 4 | Rooftop Lights - Indigo Parade    | indie pop/happy | 3.11  | 62% | mood is happy (+1.50); energy 0.76 vs target     |
+|   |                                   |                 |       |     | 0.22 (+1.61)                                     |
++---+-----------------------------------+-----------------+-------+-----+--------------------------------------------------+
+| 5 | Library Rain - Paper Lanterns     | lofi/chill      | 3.04  | 61% | energy 0.35 vs target 0.22 (+3.04)               |
++---+-----------------------------------+-----------------+-------+-----+--------------------------------------------------+
+Warnings:
+  ! I tried re-weighting the ranking and couldn't fully satisfy the request, probably because the catalog has nothing that fits all of it at once.
+  ! None of the top 3 have the mood you asked for; the songs with that mood don't fit your other preferences.
+Agent trace:
+  1. check_input: {"ok": true, "text": "slow happy songs", "reason": ""}
+  2. retrieve: {"query": "slow happy songs", "negated": [], "hits": []}
+  3. plan: "Rule planner built {'mood': 'happy', 'energy': 0.22} from {'mood': 'request text', 'energy': 'request text'}"
+  4. validate_profile: {"profile": {"mood": "happy", "energy": 0.22, "k": 5}, "warnings": []}
+  5. recommend: {"strategy": "balanced", "top": ["Rooftop Lights", "Sunrise City", "Moonlit Sonata Study", "Spacewalk Thoughts", "Pine Smoke"], "confidence": 0.636, "issues": ["energy_mismatch"]}
+  6. revise: {"strategy": "energy_first", "top": ["Moonlit Sonata Study", "Spacewalk Thoughts", "Pine Smoke", "Rooftop Lights", "Library Rain"], "confidence": 0.663, "issues": ["mood_missing_in_top3"]}
+  7. revise: {"strategy": "mood_first", "top": ["Rooftop Lights", "Sunrise City", "Moonlit Sonata Study", "Spacewalk Thoughts", "Pine Smoke"], "confidence": 0.645, "issues": ["energy_mismatch"]}
+  8. decide: {"chosen_strategy": "energy_first", "compared": {"balanced": {"confidence": 0.636, "issues": ["energy_mismatch"]}, "energy_first": {"confidence": 0.663, "issues": ["mood_missing_in_top3"]}, "mood_first": {"confidence": 0.645, "issues": ["energy_mismatch"]}}}
+  9. done: {"ok": true, "seconds": 0.0018}
+
+$ python -m src.vibefinder --trace "rainy day study session, no jazz"
+
+Request: "rainy day study session, no jazz"
+Planner: rules | Strategy: balanced | Confidence: 0.71 (medium)
+Profile used: {'genre': 'lofi', 'mood': 'melancholy', 'energy': 0.35, 'likes_acoustic': True, 'exclude_genres': ['jazz']}
++---+-------------------------------+------------------+-------+-----+--------------------------------------------------+
+| # | Song                          | Genre/Mood       | Score | Fit | Why                                              |
++---+-------------------------------+------------------+-------+-----+--------------------------------------------------+
+| 1 | Library Rain - Paper Lanterns | lofi/chill       | 4.86  | 75% | genre matches lofi (+2.00); energy 0.35 vs       |
+|   |                               |                  |       |     | target 0.35 (+2.00); acoustic sound fit 0.86     |
+|   |                               |                  |       |     | (+0.86)                                          |
++---+-------------------------------+------------------+-------+-----+--------------------------------------------------+
+| 2 | Focus Flow - LoRoom           | lofi/focused     | 4.68  | 72% | genre matches lofi (+2.00); energy 0.40 vs       |
+|   |                               |                  |       |     | target 0.35 (+1.90); acoustic sound fit 0.78     |
+|   |                               |                  |       |     | (+0.78)                                          |
++---+-------------------------------+------------------+-------+-----+--------------------------------------------------+
+| 3 | Pine Smoke - Harbor & Elm     | folk/melancholy  | 4.33  | 67% | mood is melancholy (+1.50); energy 0.30 vs       |
+|   |                               |                  |       |     | target 0.35 (+1.90); acoustic sound fit 0.93     |
+|   |                               |                  |       |     | (+0.93)                                          |
++---+-------------------------------+------------------+-------+-----+--------------------------------------------------+
+| 4 | Rainy Day Blues - Otis Gray   | blues/melancholy | 4.24  | 65% | mood is melancholy (+1.50); energy 0.38 vs       |
+|   |                               |                  |       |     | target 0.35 (+1.94); acoustic sound fit 0.80     |
+|   |                               |                  |       |     | (+0.80)                                          |
++---+-------------------------------+------------------+-------+-----+--------------------------------------------------+
+| 5 | Midnight Coding - LoRoom      | lofi/chill       | 3.57  | 55% | genre matches lofi (+2.00); energy 0.42 vs       |
+|   |                               |                  |       |     | target 0.35 (+1.86); acoustic sound fit 0.71     |
+|   |                               |                  |       |     | (+0.71); artist already in list (-1.00)          |
++---+-------------------------------+------------------+-------+-----+--------------------------------------------------+
+Based on these notes:
+  - Rainy day (situations): Rainy days pair well with slower, reflective songs. A little sadness is fine, and acoustic instruments make it feel cozy instead of heavy.
+  - Studying and deep focus (situations): Focus music works best when it stays out of the way. Steady low-to-mid tempo, no big drops, mostly instrumental and warm sounding. Lofi is the classic choice because the beat keeps you moving without grabbing your attention.
+Warnings:
+  ! Only 3 lofi song(s) in the catalog, so the rest of the list comes from other genres that fit your mood/energy.
+Agent trace:
+  1. check_input: {"ok": true, "text": "rainy day study session, no jazz", "reason": ""}
+  2. retrieve: {"query": "rainy day study session", "negated": ["jazz"], "hits": [{"source": "situations", "title": "Rainy day", "score": 2.5, "matched": ["rainy"]}, {"source": "situations", "title": "Studying and deep focus", "score": 2.25, "matched": ["study"]}]}
+  3. plan: "Rule planner built {'mood': 'melancholy', 'energy': 0.35, 'likes_acoustic': True, 'genre': 'lofi', 'exclude_genres': ['jazz']} from {'mood': 'situation: Rainy day', 'energy': 'situation: Rainy day', 'likes_acoustic': 'situation: Rainy day', 'genre': 'situation: Studying and deep focus', 'exclude_genres': 'request text'}"
+  4. validate_profile: {"profile": {"genre": "lofi", "mood": "melancholy", "energy": 0.35, "likes_acoustic": true, "exclude_genres": ["jazz"], "k": 5}, "warnings": []}
+  5. recommend: {"strategy": "balanced", "top": ["Library Rain", "Focus Flow", "Pine Smoke", "Rainy Day Blues", "Midnight Coding"], "confidence": 0.711, "issues": []}
+  6. decide: {"chosen_strategy": "balanced", "compared": {"balanced": {"confidence": 0.711, "issues": []}}}
+  7. done: {"ok": true, "seconds": 0.0021}
+
+$ python -m src.vibefinder --trace "music for cramming before my exam"
+
+Request: "music for cramming before my exam"
+Planner: rules | Strategy: balanced | Confidence: 0.75 (medium)
+Profile used: {'genre': 'lofi', 'mood': 'focused', 'energy': 0.35, 'likes_acoustic': True}
++---+-----------------------------------+-----------------+-------+-----+--------------------------------------------------+
+| # | Song                              | Genre/Mood      | Score | Fit | Why                                              |
++---+-----------------------------------+-----------------+-------+-----+--------------------------------------------------+
+| 1 | Focus Flow - LoRoom               | lofi/focused    | 6.18  | 95% | genre matches lofi (+2.00); mood is focused      |
+|   |                                   |                 |       |     | (+1.50); energy 0.40 vs target 0.35 (+1.90);     |
+|   |                                   |                 |       |     | acoustic sound fit 0.78 (+0.78)                  |
++---+-----------------------------------+-----------------+-------+-----+--------------------------------------------------+
+| 2 | Library Rain - Paper Lanterns     | lofi/chill      | 4.86  | 75% | genre matches lofi (+2.00); energy 0.35 vs       |
+|   |                                   |                 |       |     | target 0.35 (+2.00); acoustic sound fit 0.86     |
+|   |                                   |                 |       |     | (+0.86)                                          |
++---+-----------------------------------+-----------------+-------+-----+--------------------------------------------------+
+| 3 | Midnight Coding - LoRoom          | lofi/chill      | 3.57  | 55% | genre matches lofi (+2.00); energy 0.42 vs       |
+|   |                                   |                 |       |     | target 0.35 (+1.86); acoustic sound fit 0.71     |
+|   |                                   |                 |       |     | (+0.71); artist already in list (-1.00)          |
++---+-----------------------------------+-----------------+-------+-----+--------------------------------------------------+
+| 4 | Coffee Shop Stories - Slow Stereo | jazz/relaxed    | 2.85  | 44% | energy 0.37 vs target 0.35 (+1.96); acoustic     |
+|   |                                   |                 |       |     | sound fit 0.89 (+0.89)                           |
++---+-----------------------------------+-----------------+-------+-----+--------------------------------------------------+
+| 5 | Pine Smoke - Harbor & Elm         | folk/melancholy | 2.83  | 44% | energy 0.30 vs target 0.35 (+1.90); acoustic     |
+|   |                                   |                 |       |     | sound fit 0.93 (+0.93)                           |
++---+-----------------------------------+-----------------+-------+-----+--------------------------------------------------+
+Based on these notes:
+  - Studying and deep focus (situations): Focus music works best when it stays out of the way. Steady low-to-mid tempo, no big drops, mostly instrumental and warm sounding. Lofi is the classic choice because the beat keeps you moving without grabbing your attention.
+Warnings:
+  ! Only 3 lofi song(s) in the catalog, so the rest of the list comes from other genres that fit your mood/energy.
+Agent trace:
+  1. check_input: {"ok": true, "text": "music for cramming before my exam", "reason": ""}
+  2. retrieve: {"query": "music for cramming before my exam", "negated": [], "hits": [{"source": "situations", "title": "Studying and deep focus", "score": 2.0, "matched": ["exam"]}]}
+  3. plan: "Rule planner built {'genre': 'lofi', 'mood': 'focused', 'energy': 0.35, 'likes_acoustic': True} from {'genre': 'situation: Studying and deep focus', 'mood': 'situation: Studying and deep focus', 'energy': 'situation: Studying and deep focus', 'likes_acoustic': 'situation: Studying and deep focus'}"
+  4. validate_profile: {"profile": {"genre": "lofi", "mood": "focused", "energy": 0.35, "likes_acoustic": true, "k": 5}, "warnings": []}
+  5. recommend: {"strategy": "balanced", "top": ["Focus Flow", "Library Rain", "Midnight Coding", "Coffee Shop Stories", "Pine Smoke"], "confidence": 0.749, "issues": []}
+  6. decide: {"chosen_strategy": "balanced", "compared": {"balanced": {"confidence": 0.749, "issues": []}}}
+  7. done: {"ok": true, "seconds": 0.0018}
+

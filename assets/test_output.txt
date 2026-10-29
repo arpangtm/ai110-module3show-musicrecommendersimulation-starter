@@ -1,0 +1,45 @@
+============================= test session starts ==============================
+platform linux -- Python 3.13.18, pytest-9.1.1, pluggy-1.6.0 -- /usr/local/bin/python
+cachedir: .pytest_cache
+rootdir: /home/claude/ai110-module3show-musicrecommendersimulation-starter
+plugins: platformdirs-4.13.0, anyio-4.15.1
+collecting ... collected 36 items
+
+tests/test_ai_layer.py::test_retriever_maps_slang_to_catalog_genre PASSED [  2%]
+tests/test_ai_layer.py::test_retriever_finds_situation_doc PASSED        [  5%]
+tests/test_ai_layer.py::test_retriever_finds_song_title_and_does_not_reuse_its_words PASSED [  8%]
+tests/test_ai_layer.py::test_negated_words_are_removed_before_retrieval PASSED [ 11%]
+tests/test_ai_layer.py::test_input_guardrail_rejects_empty_or_junk[] PASSED [ 13%]
+tests/test_ai_layer.py::test_input_guardrail_rejects_empty_or_junk[   ] PASSED [ 16%]
+tests/test_ai_layer.py::test_input_guardrail_rejects_empty_or_junk[None] PASSED [ 19%]
+tests/test_ai_layer.py::test_input_guardrail_rejects_empty_or_junk[!!!???] PASSED [ 22%]
+tests/test_ai_layer.py::test_input_guardrail_rejects_empty_or_junk[12345] PASSED [ 25%]
+tests/test_ai_layer.py::test_input_guardrail_strips_injection_and_truncates PASSED [ 27%]
+tests/test_ai_layer.py::test_profile_guardrail_cleans_bad_values PASSED  [ 30%]
+tests/test_ai_layer.py::test_exclusion_beats_requested_genre PASSED      [ 33%]
+tests/test_ai_layer.py::test_agent_end_to_end_study_request PASSED       [ 36%]
+tests/test_ai_layer.py::test_agent_refuses_off_topic PASSED              [ 38%]
+tests/test_ai_layer.py::test_agent_respects_exclusions PASSED            [ 41%]
+tests/test_ai_layer.py::test_agent_leaves_reference_song_out PASSED      [ 44%]
+tests/test_ai_layer.py::test_agent_warns_about_unsupported_genre PASSED  [ 47%]
+tests/test_ai_layer.py::test_agent_revises_when_request_conflicts PASSED [ 50%]
+tests/test_ai_layer.py::test_thin_request_caps_confidence PASSED         [ 52%]
+tests/test_ai_layer.py::test_k_from_text PASSED                          [ 55%]
+tests/test_ai_layer.py::test_llm_planner_used_when_reply_is_valid PASSED [ 58%]
+tests/test_ai_layer.py::test_llm_prompt_contains_retrieved_context PASSED [ 61%]
+tests/test_ai_layer.py::test_llm_garbage_falls_back_to_rules[Sure, here are some songs!] PASSED [ 63%]
+tests/test_ai_layer.py::test_llm_garbage_falls_back_to_rules[[1, 2, 3]] PASSED [ 66%]
+tests/test_ai_layer.py::test_llm_garbage_falls_back_to_rules[{not json}] PASSED [ 69%]
+tests/test_ai_layer.py::test_llm_exception_falls_back_to_rules PASSED    [ 72%]
+tests/test_ai_layer.py::test_crisis_language_gets_support_message_first PASSED [ 75%]
+tests/test_recommender.py::test_recommend_returns_songs_sorted_by_score PASSED [ 77%]
+tests/test_recommender.py::test_explain_recommendation_returns_non_empty_string PASSED [ 80%]
+tests/test_recommender_extra.py::test_catalog_loads_twenty_songs_with_numeric_fields PASSED [ 83%]
+tests/test_recommender_extra.py::test_bad_csv_rows_are_skipped_not_fatal PASSED [ 86%]
+tests/test_recommender_extra.py::test_score_is_numeric_and_never_exceeds_max_for_every_song PASSED [ 88%]
+tests/test_recommender_extra.py::test_energy_preference_actually_changes_ranking PASSED [ 91%]
+tests/test_recommender_extra.py::test_results_are_sorted_and_explained PASSED [ 94%]
+tests/test_recommender_extra.py::test_artist_penalty_spreads_out_artists PASSED [ 97%]
+tests/test_recommender_extra.py::test_k_zero_and_empty_catalog_return_empty PASSED [100%]
+
+============================== 36 passed in 0.08s ==============================
