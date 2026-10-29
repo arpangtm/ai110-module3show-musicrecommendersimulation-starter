@@ -1,3 +1,5 @@
-pandas
-pytest
-streamlit
+pytest>=7.0
+
+# Optional: lets the planner use Gemini when GEMINI_API_KEY is set.
+# Without it everything runs on the offline rule planner.
+# google-genai>=1.0
