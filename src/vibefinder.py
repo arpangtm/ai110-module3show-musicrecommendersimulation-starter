@@ -11,11 +11,14 @@ import argparse
 import json
 
 from src.agent import AgentResult, VibeFinderAgent, configure_logging
+from src.guardrails import CRISIS_MESSAGE
 from src.formatting import table
 
 
 def render(result: AgentResult, show_trace: bool = False) -> str:
     out = [f'\nRequest: "{result.request}"']
+    if CRISIS_MESSAGE in result.warnings:
+        out.append(f"\n  {CRISIS_MESSAGE}\n")
     if not result.ok:
         out.append(f"No recommendations. {result.message}")
         for w in result.warnings:
@@ -38,9 +41,10 @@ def render(result: AgentResult, show_trace: bool = False) -> str:
         out.append("Based on these notes:")
         for g in result.grounding:
             out.append(f"  - {g}")
-    if result.warnings:
+    other = [w for w in result.warnings if w != CRISIS_MESSAGE]
+    if other:
         out.append("Warnings:")
-        for w in result.warnings:
+        for w in other:
             out.append(f"  ! {w}")
     if show_trace:
         out.append(render_trace(result))

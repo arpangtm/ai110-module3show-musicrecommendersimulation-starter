@@ -187,6 +187,9 @@ class VibeFinderAgent:
             result.message = check.reason
             return self._finish(result, started)
         request = check.text
+        if check.crisis:
+            result.warnings.insert(0, guardrails.CRISIS_MESSAGE)
+            self._step(result, "safety", "crisis language detected; support message added")
 
         # 2-3. negations + retrieval
         positive_text, negated = split_negations(request)
@@ -208,6 +211,13 @@ class VibeFinderAgent:
         result.warnings += warnings
         result.profile = profile
         self._step(result, "validate_profile", {"profile": profile, "warnings": warnings})
+
+        if check.crisis:
+            # Don't feed someone in a dark place the saddest songs we have.
+            profile.update({"mood": "calm", "valence": 0.6})
+            profile.pop("genre", None)
+            result.warnings.append("I picked calm, gentle songs rather than the saddest ones in the catalog.")
+            self._step(result, "safety", {"profile_adjusted_to": profile})
 
         if not guardrails.has_preferences(profile):
             result.message = (

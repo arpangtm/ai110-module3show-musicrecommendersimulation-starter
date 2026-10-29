@@ -27,6 +27,18 @@ INJECTION_PATTERNS = [
     r"disregard (the )?rules",
 ]
 
+# If a request sounds like the person might be in danger, music is not the
+# right answer on its own. We still answer, but lead with a pointer to help.
+CRISIS_PATTERNS = [
+    r"\bkill myself\b", r"\bsuicid", r"\bwant to die\b", r"\bend (it all|my life)\b",
+    r"\bhurt myself\b", r"\bself[- ]?harm", r"\bno reason to live\b",
+]
+CRISIS_MESSAGE = (
+    "It sounds like you might be going through something really heavy. If you are thinking "
+    "about hurting yourself, please reach out to someone now. In the US you can call or text "
+    "988 (Suicide and Crisis Lifeline); outside the US, local emergency services can help."
+)
+
 ALLOWED_KEYS = {"genre", "mood", "energy", "likes_acoustic", "tempo_bpm", "valence", "k",
                 "exclude_genres"}
 
@@ -37,6 +49,7 @@ class InputCheck:
     text: str
     reason: str = ""
     warnings: List[str] = field(default_factory=list)
+    crisis: bool = False
 
 
 def check_request(raw: Optional[str]) -> InputCheck:
@@ -62,7 +75,8 @@ def check_request(raw: Optional[str]) -> InputCheck:
     if not re.search(r"[A-Za-z]{2,}", text):
         return InputCheck(False, text, "That doesn't look like a request I can read. Use a few words about the music you want.", warnings)
 
-    return InputCheck(True, text, "", warnings)
+    crisis = any(re.search(p, text, flags=re.I) for p in CRISIS_PATTERNS)
+    return InputCheck(True, text, "", warnings, crisis)
 
 
 def _clamp(value: float, low: float, high: float) -> float:

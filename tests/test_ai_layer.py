@@ -153,3 +153,9 @@ def test_llm_exception_falls_back_to_rules():
         raise TimeoutError("network down")
     result = _agent_with(boom).run("music for studying")
     assert result.ok and result.planner == "rules"
+
+
+def test_crisis_language_gets_support_message_first(agent):
+    result = agent.run("sad songs, honestly I want to die")
+    assert "988" in result.warnings[0]
+    assert any(step["step"] == "safety" for step in result.trace)
