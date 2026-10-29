@@ -97,10 +97,14 @@ def split_negations(text: str) -> Tuple[str, List[str]]:
     """
     norm = normalize(text)
     negated: List[str] = []
-    pattern = re.compile(rf"\b{NEGATORS}\s+(?:any\s+|too\s+|more\s+)?([a-z&]+(?:\s+[a-z&]+)?)")
+    # Capture one word, plus a second one only for multi-word names like
+    # "hip hop". The lookahead stops it from swallowing the next negation
+    # ("no country nothing sad") or filler words ("no rap for the gym").
+    second = rf"(?:\s+(?!(?:{NEGATORS}|and|but|or|for|to|at|in|on|with|while|the|a|music|songs|please)\b)([a-z&]+))?"
+    pattern = re.compile(rf"\b{NEGATORS}\s+(?:any\s+|too\s+|more\s+)?([a-z&]+){second}")
 
     def repl(m: re.Match) -> str:
-        negated.append(m.group(1))
+        negated.append(" ".join(g for g in m.groups() if g))
         return " "
 
     cleaned = pattern.sub(repl, norm)
