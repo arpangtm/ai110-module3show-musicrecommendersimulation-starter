@@ -114,6 +114,7 @@ class VibeFinderAgent:
         use_llm: bool = True,
         llm_generate: Optional[Callable[[str], str]] = None,
         trace_path: Optional[Path] = LOG_DIR / "agent_trace.jsonl",
+        use_retrieval: bool = True,
     ):
         self.songs = songs if songs is not None else load_songs(str(DATA_PATH))
         self.genres = sorted({s["genre"] for s in self.songs})
@@ -128,6 +129,8 @@ class VibeFinderAgent:
             if generate:
                 self.llm_planner = LLMPlanner(generate, self.genres, self.moods)
         self.trace_path = trace_path
+        # Switch for the before/after RAG comparison in eval/run_eval.py
+        self.use_retrieval = use_retrieval
 
     # -- helpers -----------------------------------------------------------
 
@@ -187,7 +190,7 @@ class VibeFinderAgent:
 
         # 2-3. negations + retrieval
         positive_text, negated = split_negations(request)
-        retrieved = self.retriever.search(positive_text)
+        retrieved = self.retriever.search(positive_text) if self.use_retrieval else []
         self._step(result, "retrieve", {
             "query": positive_text,
             "negated": negated,
