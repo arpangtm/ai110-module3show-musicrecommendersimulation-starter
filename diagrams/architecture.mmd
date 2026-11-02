@@ -2,7 +2,7 @@ flowchart TD
     U([User request in plain English]) --> G1
 
     subgraph Guardrails_In [Input guardrail - src/guardrails.py]
-        G1{check_request:<br/>empty? junk? too long?<br/>injection phrases?}
+        G1{check_request:<br/>empty? junk? too long?<br/>injection phrases?<br/>crisis language?}
     end
     G1 -- rejected --> R1([Refusal message + reason])
     G1 -- cleaned text --> NEG[split_negations<br/>'no metal' -> exclusion list<br/>src/planner.py]
@@ -52,7 +52,7 @@ flowchart TD
 
     subgraph Human_and_Tests [Checking the AI]
         T1[pytest suite<br/>tests/]
-        T2[eval/run_eval.py<br/>16 cases + RAG on/off]
+        T2[eval/run_eval.py<br/>17 cases + RAG on/off]
         H[Me reading traces<br/>and eval report]
     end
     ANS -.-> T2
